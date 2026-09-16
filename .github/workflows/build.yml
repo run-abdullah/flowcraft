@@ -21,23 +21,24 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "20"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
           version: 8
 
-      - name: Add pnpm to PATH
+      - name: Install pnpm globally & add to PATH
         run: |
-          echo "$env:USERPROFILE\AppData\Local\pnpm" >> $env:GITHUB_PATH
+          npm install -g pnpm@8
+          echo "$env:USERPROFILE\AppData\Roaming\npm" >> $env:GITHUB_PATH
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install PyInstaller & Build Engine
+      - name: Install PyInstaller & Build Engine EXE
         working-directory: ./flowcraft
         run: |
           python -m pip install --upgrade pip
@@ -57,4 +58,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: FlowCraft-Windows
-          path: flowcraft/build/bin/flowcraft.exe
+          path: flowcraft/build/bin/*.exe
