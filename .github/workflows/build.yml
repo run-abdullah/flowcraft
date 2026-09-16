@@ -23,13 +23,21 @@ jobs:
         with:
           node-version: "18"
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Add pnpm to PATH
+        run: |
+          echo "$env:USERPROFILE\AppData\Local\pnpm" >> $env:GITHUB_PATH
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - name: Install PyInstaller & Build Engine
-        # Subfolder flowcraft mein switch karke PyInstaller chalayein
         working-directory: ./flowcraft
         run: |
           python -m pip install --upgrade pip
@@ -42,7 +50,7 @@ jobs:
       - name: Build Wails App
         working-directory: ./flowcraft
         run: |
-          $ENV:PATH += ";$ENV:GOPATH\bin"
+          $env:PATH += ";$env:GOPATH\bin"
           wails build -platform windows/amd64 -clean
 
       - name: Upload Windows Executable
