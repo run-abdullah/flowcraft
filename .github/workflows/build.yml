@@ -1,52 +1,52 @@
-name: Build Windows App
+name: Build FlowCraft Windows
 
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [main, master]
+  workflow_dispatch:
 
 jobs:
-  build-windows:
+  build:
     runs-on: windows-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Go Runtime
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.21"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: "18"
 
-      - name: Setup Python & PyInstaller
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install Python Dependencies & Build Exe
-        shell: pwsh
+      - name: Install PyInstaller & Build Engine
+        # Subfolder flowcraft mein switch karke PyInstaller chalayein
+        working-directory: ./flowcraft
         run: |
+          python -m pip install --upgrade pip
           pip install pymupdf pyinstaller
-          pyinstaller --onefile --name process_pdf src-tauri/binaries/process_pdf.py
-          if (!(Test-Path -Path "src-tauri/binaries")) { New-Item -ItemType Directory -Path "src-tauri/binaries" }
-          Copy-Item "dist/process_pdf.exe" -Destination "src-tauri/binaries/process_pdf-x86_64-pc-windows-msvc.exe" -Force
+          pyinstaller --onefile binaries/process_pdf.py --distpath binaries/
 
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v3
+      - name: Build Wails App
+        working-directory: ./flowcraft
+        run: |
+          $ENV:PATH += ";$ENV:GOPATH\bin"
+          wails build -platform windows/amd64 -clean
+
+      - name: Upload Windows Executable
+        uses: actions/upload-artifact@v4
         with:
-          version: 8
-
-      - name: Install Frontend Dependencies
-        run: pnpm install
-
-      - name: Build Tauri App
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tagName: v1.0.0
-          releaseName: "FlowCraft Windows v1.0.0"
-          releaseDraft: false
-          prerelease: false
+          name: FlowCraft-Windows
+          path: flowcraft/build/bin/flowcraft.exe

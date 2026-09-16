@@ -1,0 +1,22 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "flowcraft",
+  "outputfilename": "flowcraft",
+  "frontend:install": "pnpm install",
+  "frontend:build": "pnpm run build",
+  "frontend:dev:watcher": "pnpm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "Abdullah Riaz",
+    "email": "ar9642308@gmail.com"
+  },
+  "fileDrop": {
+    "enabled": true
+  },
+  "info": {
+    "companyName": "FlowCraft",
+    "productName": "FlowCraft PDF Engine",
+    "productVersion": "1.0.0",
+    "copyright": "Copyright © 2026"
+  }
+}
