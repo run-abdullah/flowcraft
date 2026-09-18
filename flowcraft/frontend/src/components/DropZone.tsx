@@ -1,56 +1,22 @@
-import { createSignal } from "solid-js";
-
 interface DropZoneProps {
   onSelectClick: () => void;
 }
 
 export default function DropZone(props: DropZoneProps) {
-  const [isDragging, setIsDragging] = createSignal(false);
-
-  // WebKit browser default PDF opening block karne ke liye
-  const handleDragOver = (e: DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.dataTransfer) {
-      e.dataTransfer.dropEffect = "copy";
-    }
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (
-      e.currentTarget &&
-      !(e.currentTarget as HTMLElement).contains(e.relatedTarget as Node)
-    ) {
-      setIsDragging(false);
-    }
-  };
-
-  const handleDrop = (e: DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  };
-
   return (
     <div
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
       onClick={props.onSelectClick}
       style={{ "--wails-drop-target": "drop" } as any}
-      class={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all duration-200 select-none ${
-        isDragging()
-          ? "border-emerald-400 bg-emerald-500/20 scale-[1.02]"
-          : "border-slate-700 hover:border-emerald-500 bg-slate-900/50 hover:bg-emerald-500/10"
-      }`}
+      class="group relative border-2 border-dashed border-card-border hover:border-accent-primary rounded-3xl p-8 text-center cursor-pointer transition-all duration-300 select-none bg-card-bg hover:bg-accent-subtle/40 backdrop-blur-md shadow-lg hover:shadow-accent-primary/10 hover:scale-[1.01]"
     >
-      <div class="flex flex-col items-center justify-center gap-3 pointer-events-none">
-        <div class="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center text-emerald-400 shadow-inner">
+      {/* Ambient Inner Glow on Hover */}
+      <div class="absolute inset-0 rounded-3xl bg-accent-subtle/0 group-hover:bg-accent-subtle/10 transition-colors duration-300 pointer-events-none"></div>
+
+      <div class="relative z-10 flex flex-col items-center justify-center gap-3 pointer-events-none">
+        {/* Animated Icon Box */}
+        <div class="w-14 h-14 rounded-2xl bg-app-bg/80 border border-card-border group-hover:border-accent-border flex items-center justify-center text-accent-primary shadow-inner transition-all duration-300 group-hover:scale-110">
           <svg
-            class="w-7 h-7"
+            class="w-7 h-7 transform group-hover:-translate-y-1 transition-transform duration-300"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -63,14 +29,13 @@ export default function DropZone(props: DropZoneProps) {
             />
           </svg>
         </div>
+
         <div>
-          <p class="text-base font-semibold text-slate-200">
-            {isDragging()
-              ? "Drop PDF File Now"
-              : "Drag & Drop Ticket PDFs Here"}
+          <p class="text-sm font-bold text-text-main group-hover:text-accent-primary transition-colors duration-200">
+            Drag & Drop Ticket PDFs Here
           </p>
-          <p class="text-xs text-slate-400 mt-1">
-            Or click anywhere to open file picker
+          <p class="text-[11px] text-text-muted mt-1 font-medium">
+            Or click anywhere to browse files
           </p>
         </div>
       </div>

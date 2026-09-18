@@ -17,20 +17,28 @@ function App() {
   const [completed, setCompleted] = createSignal<PDFItem[]>([]);
 
   onMount(() => {
-    // Wails JS Official Runtime Listener
+    // Wails Native Drag Drop Listener
     OnFileDrop((x: number, y: number, paths: string[]) => {
-      console.log(
-        `[Wails Native Drop] Coordinates: (${x}, ${y}) | Paths:`,
-        paths,
-      );
+      console.log("=== [Native Drop Event Triggered] ===");
+      console.log("X/Y Coords:", x, y);
+      console.log("Dropped Paths Array:", paths);
+
+      if (!paths || paths.length === 0) {
+        console.warn("No paths received from native drag!");
+        return;
+      }
 
       const pdfPaths = paths.filter((p) => p.toLowerCase().endsWith(".pdf"));
+      console.log("Filtered PDF Paths:", pdfPaths);
+
       pdfPaths.forEach((path) => {
-        const fileName = path.split("/").pop() || "ticket.pdf";
+        // Windows (\) aur Linux (/) path clean handling
+        const fileName = path.split(/[/\\]/).pop() || "ticket.pdf";
         const id = crypto.randomUUID();
+        console.log(`Processing File -> Name: ${fileName} | Path: ${path}`);
         processPath(id, fileName, path);
       });
-    }, true); // <--- Important: useDropTarget = true
+    }, true);
   });
 
   onCleanup(() => {
@@ -94,28 +102,40 @@ function App() {
     }
   };
   return (
-    <main class="min-h-screen bg-slate-950 text-slate-100 p-6 lg:p-10 font-sans">
-      <div class="max-w-5xl mx-auto">
-        <Header />
+      <main class="h-screen w-screen bg-app-bg text-text-main p-6 font-sans flex flex-col overflow-hidden select-none">
+        <div class="max-w-6xl w-full mx-auto flex flex-col h-full gap-6">
+          {/* Header - Fixed Height */}
+          <div class="shrink-0">
+            <Header />
+          </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-          <section class="space-y-4">
-            <DropZone onSelectClick={handleSelectFiles} />
-            <ProcessingList items={processing()} />
-          </section>
+          {/* Desktop Split View - Fixed Height Fill */}
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0 overflow-hidden">
+            {/* Left Panel: DropZone + Active Processing List */}
+            <section class="flex flex-col gap-4 h-full min-h-0 overflow-hidden">
+              <div class="shrink-0">
+                <DropZone onSelectClick={handleSelectFiles} />
+              </div>
 
-          <section>
-            <CompletedList
-              items={completed()}
-              onDownload={downloadPDF}
-              onCopy={copyPDF}
-              onClear={() => setCompleted([])}
-            />
-          </section>
+              {/* Processing list scrolls independently if items overflow */}
+              <div class="flex-1 overflow-y-auto min-h-0 pr-1">
+                <ProcessingList items={processing()} />
+              </div>
+            </section>
+
+            {/* Right Panel: Completed Items Panel */}
+            <section class="h-full min-h-0 overflow-hidden">
+              <CompletedList
+                items={completed()}
+                onDownload={downloadPDF}
+                onCopy={copyPDF}
+                onClear={() => setCompleted([])}
+              />
+            </section>
+          </div>
         </div>
-      </div>
-    </main>
-  );
-}
+      </main>
+    );
+  }
 
-export default App;
+  export default App;

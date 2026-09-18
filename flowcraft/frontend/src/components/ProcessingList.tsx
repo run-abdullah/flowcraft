@@ -10,9 +10,9 @@ export default function ProcessingList(props: ProcessingListProps) {
     <div class="space-y-3">
       <For each={props.items}>
         {(item) => (
-          <div class="flex items-center justify-between p-4 rounded-xl bg-slate-900/60 border border-slate-800 shadow-sm animate-fade-in">
+          <div class="flex items-center justify-between p-4 rounded-2xl bg-card-bg border border-card-border shadow-md backdrop-blur-md animate-fade-in">
             <div class="flex items-center gap-3 overflow-hidden">
-              <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0">
+              <div class="w-9 h-9 rounded-xl bg-accent-subtle border border-accent-border flex items-center justify-center text-accent-primary shrink-0">
                 <svg
                   class="w-4 h-4 animate-spin"
                   fill="none"
@@ -34,11 +34,11 @@ export default function ProcessingList(props: ProcessingListProps) {
                 </svg>
               </div>
               <div class="truncate">
-                <p class="text-sm font-medium text-slate-200 truncate">
+                <p class="text-xs font-semibold text-text-main truncate">
                   {item.name}
                 </p>
-                <p class="text-xs text-slate-400">
-                  Processing ticket conversion...
+                <p class="text-[10px] text-accent-primary font-medium animate-pulse mt-0.5">
+                  Converting ticket format...
                 </p>
               </div>
             </div>
